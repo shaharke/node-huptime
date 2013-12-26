@@ -30,7 +30,7 @@ serverDomain.run(function() {
     res.send(200);
   });
 
-  var port = 6000;
+  var port = 5000;
   server = app.listen(port);
 
   server.on('listening', function() {
