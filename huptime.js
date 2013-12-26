@@ -1,15 +1,50 @@
+var domain = require('domain');
+var serverDomain = domain.create();
+var gracefulExit = require('express-graceful-exit');
+var domainError = require('express-domain-errors');
 var express = require('express');
-var app = express();
+var app;
+var server;
 
-app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-app.use(express.logger('dev'));
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(app.router);
+function sendOfflineMsg() {
+  if (process.send) process.send('offline')
+}
 
-app.get('/hello', function(req, res){
-  res.send(200);
-});
+function doGracefulExit() {
+  gracefulExit.gracefulExitHandler(app, server, {log: true})
+}
 
-app.listen(6000);
-console.log('Listening on port 6000');
+serverDomain.run(function() {
+  app = express()
+
+  app.use(domainError(sendOfflineMsg, doGracefulExit))
+
+
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+  app.use(express.logger('dev'));
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+
+  app.get('/hello', function(req, res){
+    res.send(200);
+  });
+
+  var port = 6000;
+  server = app.listen(port);
+
+  server.on('listening', function() {
+    console.log('Listening on port ', port);
+    if (process.send) process.send('online')
+  })
+
+  process.on('message', function(message) {
+    if (message == 'shutdown') {
+      console.log('shutting down gracefully');
+      doGracefulExit();
+      console.log('shutdown');
+
+    }
+  })
+
+})

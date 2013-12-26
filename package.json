@@ -10,6 +10,8 @@
   "license": "BSD-2-Clause",
   "dependencies": {
     "express": "~3.4.7",
-    "mongoose": "~3.8.3"
+    "mongoose": "~3.8.3",
+    "express-graceful-exit": "~0.1.0",
+    "express-domain-errors": "0.0.2"
   }
 }
