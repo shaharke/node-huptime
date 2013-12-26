@@ -26,7 +26,7 @@ serverDomain.run(function() {
   app.use(express.methodOverride());
   app.use(app.router);
 
-  app.get('/hello', function(req, res){
+  app.get('/', function(req, res){
     res.send(200);
   });
 
@@ -40,10 +40,7 @@ serverDomain.run(function() {
 
   process.on('message', function(message) {
     if (message == 'shutdown') {
-      console.log('shutting down gracefully');
       doGracefulExit();
-      console.log('shutdown');
-
     }
   })
 
